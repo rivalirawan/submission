@@ -16,17 +16,27 @@ st.set_page_config(
 # --- 2. DATA LOADING ---
 @st.cache_data
 def load_data():
-    data_path_local = 'cleaned_air_data_master.csv' 
+    GOOGLE_DRIVE_FILE_ID = '1qPaH1qnOYSrRu7lsL-PQq9nCkg6pvZIa' 
+    
+    data_url = f'https://drive.google.com/uc?export=download&id={GOOGLE_DRIVE_FILE_ID}'
+
+    st.info("Memuat data dari Google Drive...")
     
     try:
-        df = pd.read_csv(data_path_local, index_col=0, parse_dates=True)
+        df = pd.read_csv(data_url, index_col=0, parse_dates=True)
         
+        if df.empty:
+             st.error("Data berhasil diunduh, tetapi DataFrame kosong.")
+             return None
+             
         df['year'] = df.index.year
         df['month'] = df.index.month
         
+        st.success("Data berhasil dimuat!")
         return df
-    except FileNotFoundError:
-        st.error(f"File data tidak ditemukan. Pastikan '{data_path_local}' ada di folder ini.")
+        
+    except Exception as e:
+        st.error(f"Gagal memuat data dari Google Drive. Pastikan link publik dan ID file sudah benar. Error: {e}")
         return None
 
 df_master = load_data()
